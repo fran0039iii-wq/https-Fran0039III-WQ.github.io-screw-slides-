@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>关于螺丝的事情</title>
+<style>
+  :root{
+    --accent:#1f5c99;          /* 标题色 = 强调色 */
+    --accent-soft:#e9f1fa;
+    --ink:#1b2430;
+    --muted:#5c6773;
+    --line:#dde5ee;
+    --bg:#eef2f7;
+    --paper:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Noto Sans SC","Source Han Sans SC",sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+
+  /* ---------- 舞台 ---------- */
+  #viewport{
+    position:fixed;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+  #stage{
+    width:1280px;height:720px;flex:0 0 auto;position:relative;
+    background:var(--paper);
+    border-radius:8px;
+    box-shadow:0 20px 55px rgba(20,45,80,.16);
+    overflow:hidden;
+    transform-origin:center center;
+  }
+
+  .slide{
+    position:absolute;inset:0;
+    padding:64px 84px 78px;
+    display:flex;flex-direction:column;
+    opacity:0;visibility:hidden;
+    transform:translateY(14px);
+    transition:opacity .32s ease, transform .32s ease, visibility .32s;
+  }
+  .slide.active{opacity:1;visibility:visible;transform:none;}
+
+  /* ---------- 公共元素 ---------- */
+  .eyebrow{
+    margin:0 0 14px;
+    font-size:17px;letter-spacing:.16em;
+    color:var(--accent);font-weight:700;
+  }
+  h1{
+    margin:0;
+    font-size:50px;line-height:1.22;font-weight:800;
+    color:var(--accent);letter-spacing:.01em;
+  }
+  .rule{
+    width:76px;height:6px;border-radius:3px;
+    background:var(--accent);
+    margin:20px 0 30px;
+  }
+  ul.points{
+    list-style:none;margin:0;padding:0;
+    display:flex;flex-direction:column;gap:16px;
+  }
+  ul.points li{
+    position:relative;
+    padding-left:38px;
+    font-size:27px;line-height:1.5;
+    color:var(--ink);
+  }
+  ul.points li::before{
+    content:"";position:absolute;left:8px;top:.62em;
+    width:12px;height:12px;border-radius:3px;
+    background:var(--accent);
+  }
+  ul.points strong{color:var(--accent);font-weight:800;}
+  .foot{
+    position:absolute;left:84px;right:84px;bottom:28px;
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:15px;color:#93a0ad;letter-spacing:.06em;
+  }
+  .foot .topic{color:#a9b4c0;}
+
+  /* ---------- 封面 ---------- */
+  .cover{padding:0 84px;justify-content:center;}
+  .cover .kicker{
+    font-size:19px;letter-spacing:.24em;color:var(--accent);font-weight:700;margin:0 0 22px;
+  }
+  .cover h1{
+    font-size:82px;line-height:1.12;letter-spacing:.02em;
+  }
+  .cover .sub{
+    margin:26px 0 0;font-size:26px;color:var(--muted);line-height:1.6;
+  }
+  .cover .hint{
+    margin:44px 0 0;font-size:17px;color:#93a0ad;
+  }
+  .cover .hint kbd{
+    font-family:inherit;font-size:16px;
+    background:var(--accent-soft);color:var(--accent);
+    border:1px solid #cfe0f2;border-radius:6px;
+    padding:2px 8px;margin:0 3px;font-weight:700;
+  }
+  .screw-art{position:absolute;right:96px;top:50%;transform:translateY(-50%);opacity:.92;}
+
+  /* ---------- 目录 ---------- */
+  .toc{display:flex;flex-direction:column;gap:20px;margin-top:2px;}
+  .toc-item{
+    display:flex;align-items:center;gap:26px;
+    border:1px solid var(--line);border-left:6px solid var(--accent);
+    border-radius:10px;background:#fbfcfe;
+    padding:20px 28px;
+  }
+  .toc-item .num{
+    font-size:34px;font-weight:800;color:var(--accent);
+    min-width:66px;letter-spacing:.02em;
+  }
+  .toc-item .t{font-size:30px;font-weight:700;}
+  .toc-item .d{font-size:20px;color:var(--muted);margin-top:6px;}
+
+  /* ---------- 结尾 ---------- */
+  .end{padding:60px 84px;justify-content:center;}
+  .end .big{
+    font-size:58px;font-weight:800;color:var(--accent);
+    line-height:1.3;margin:0 0 12px;letter-spacing:.01em;
+  }
+  .end .rule{margin:16px 0 30px;}
+  .end ol.sums{
+    list-style:none;counter-reset:s;margin:0;padding:0;
+    display:flex;flex-direction:column;gap:18px;
+  }
+  .end ol.sums li{
+    counter-increment:s;position:relative;padding-left:60px;
+    font-size:28px;line-height:1.5;
+  }
+  .end ol.sums li::before{
+    content:counter(s);
+    position:absolute;left:0;top:2px;
+    width:38px;height:38px;border-radius:50%;
+    background:var(--accent);color:#fff;
+    font-size:20px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .end .sign{
+    margin-top:34px;font-size:19px;color:var(--muted);letter-spacing:.1em;
+  }
+
+  /* ---------- 控制条 ---------- */
+  #controls{
+    position:fixed;left:50%;bottom:16px;transform:translateX(-50%);
+    display:flex;align-items:center;gap:14px;
+    background:rgba(255,255,255,.94);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:8px 16px;
+    box-shadow:0 6px 20px rgba(20,45,80,.10);
+    z-index:10;
+  }
+  #controls button{
+    font-family:inherit;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:var(--accent);
+    border-radius:999px;padding:6px 14px;font-size:15px;font-weight:700;
+  }
+  #controls button:hover{background:var(--accent-soft);}
+  #dots{display:flex;gap:7px;}
+  #dots .dot{
+    width:10px;height:10px;padding:0;border-radius:50%;
+    border:1px solid #b9c8d8;background:#fff;cursor:pointer;
+  }
+  #dots .dot.on{background:var(--accent);border-color:var(--accent);}
+  #counter{font-size:15px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:62px;text-align:center;}
+  #bar{
+    position:fixed;left:0;top:0;height:4px;width:0;
+    background:var(--accent);z-index:11;transition:width .3s ease;
+  }
+
+  /* ---------- 打印 / 导出 PDF ---------- */
+  @page{size:1280px 720px;margin:0;}
+  @media print{
+    body{overflow:visible;background:#fff;}
+    #viewport{position:static;display:block;overflow:visible;}
+    #stage{transform:none !important;width:1280px;height:auto;box-shadow:none;border-radius:0;}
+    #bar,#controls{display:none !important;}
+    .slide{
+      position:static;opacity:1 !important;visibility:visible !important;transform:none !important;
+      width:1280px;height:720px;page-break-after:always;break-after:page;
+    }
+    .slide:last-child{page-break-after:auto;break-after:auto;}
+  }
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="viewport">
+  <div id="stage">
+
+    <!-- 1 封面 -->
+    <section class="slide cover active">
+      <p class="kicker">一次讲清楚的小知识</p>
+      <h1>关于螺丝的事情</h1>
+      <div class="rule"></div>
+      <p class="sub">它的历史 · 它的应用 · 它的各种样子</p>
+      <p class="hint">按 <kbd>→</kbd> 或 <kbd>空格</kbd> 翻页，按 <kbd>←</kbd> 返回</p>
+      <svg class="screw-art" width="132" height="300" viewBox="0 0 132 300" aria-hidden="true">
+        <rect x="26" y="14" width="80" height="30" rx="8" fill="#1f5c99"/>
+        <rect x="50" y="44" width="32" height="16" fill="#1f5c99"/>
+        <path d="M46 60 L46 244 L66 288 L86 244 L86 60 Z" fill="#8fb6da"/>
+        <g stroke="#1f5c99" stroke-width="6" stroke-linecap="round" opacity=".85">
+          <line x1="46" y1="80" x2="86" y2="62"/>
+          <line x1="46" y1="112" x2="86" y2="94"/>
+          <line x1="46" y1="144" x2="86" y2="126"/>
+          <line x1="46" y1="176" x2="86" y2="158"/>
+          <line x1="46" y1="208" x2="86" y2="190"/>
+          <line x1="46" y1="240" x2="82" y2="224"/>
+          <line x1="52" y1="262" x2="76" y2="251"/>
+        </g>
+      </svg>
+    </section>
+
+    <!-- 2 目录 -->
+    <section class="slide">
+      <p class="eyebrow">CONTENTS</p>
+      <h1>目录</h1>
+      <div class="rule"></div>
+      <div class="toc">
+        <div class="toc-item">
+          <div class="num">01</div>
+          <div>
+            <div class="t">螺丝的历史</div>
+            <div class="d">它最早长什么样、大概什么时候出现</div>
+          </div>
+        </div>
+        <div class="toc-item">
+          <div class="num">02</div>
+          <div>
+            <div class="t">螺丝的应用</div>
+            <div class="d">工程里和生活里，它都在哪些地方</div>
+          </div>
+        </div>
+        <div class="toc-item">
+          <div class="num">03</div>
+          <div>
+            <div class="t">不同种类的螺丝</div>
+            <div class="d">自攻螺丝、木工螺丝、钻尾螺丝</div>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="topic">关于螺丝的事情</span><span>2 / 10</span></div>
+    </section>
+
+    <!-- 3 历史：最早的样子 -->
+    <section class="slide">
+      <p class="eyebrow">01 螺丝的历史</p>
+      <h1>最开始的螺丝，长什么样？</h1>
+      <div class="rule"></div>
+      <ul class="points">
+        <li>最早的螺丝是<strong>木头做的</strong>，还不是金属。</li>
+        <li>螺旋纹是手工刻出来的，大小不一，看上去比较粗糙。</li>
+        <li>它主要用来<strong>压榨和提水</strong>，比如榨油、压葡萄、把水提上来。</li>
+        <li>螺纹其实就是绕在圆柱上的一个<strong>斜面</strong>，转一圈就前进一点。</li>
+        <li>那时候它更像一台机器的一部分，而不是手里的小零件。</li>
+      </ul>
+      <div class="foot"><span class="topic">关于螺丝的事情</span><span>3 / 10</span></div>
+    </section>
+
+    <!-- 4 历史：什么时候发明 -->
+    <section class="slide">
+      <p class="eyebrow">01 螺丝的历史</p>
+      <h1>它是什么时候出现的？</h1>
+      <div class="rule"></div>
+      <ul class="points">
+        <li><strong>公元前 3 世纪左右</strong>：古希腊出现木螺旋，用来压榨和提水。</li>
+        <li><strong>15 世纪</strong>：欧洲开始做金属螺丝，一颗一颗手工打出来。</li>
+        <li><strong>约 1568 年</strong>：法国人贝松画出车螺纹的车床图样。</li>
+        <li><strong>1800 年前后</strong>：英国人莫兹利做出螺纹车床，螺丝可以批量生产。</li>
+        <li><strong>20 世纪</strong>：螺纹有了统一标准，螺丝和螺母可以互换。</li>
+      </ul>
+      <div class="foot"><span class="topic">关于螺丝的事情</span><span>4 / 10</span></div>
+    </section>
+
+    <!-- 5 应用：工程 -->
+    <section class="slide">
+      <p class="eyebrow">02 螺丝的应用</p>
+      <h1>工程里的三个例子</h1>
+      <div class="rule"></div>
+      <ul class="points">
+        <li><strong>桥梁和钢结构</strong>：成千上万颗高强度螺栓，把钢梁连成一个整体。</li>
+        <li><strong>汽车</strong>：发动机、底盘、座椅都靠螺丝固定，一辆车要用上千颗。</li>
+        <li><strong>飞机和火箭</strong>：要求更轻、更结实，每一颗都不能松。</li>
+      </ul>
+      <div class="foot"><span class="topic">关于螺丝的事情</span><span>5 / 10</span></div>
+    </section>
+
+    <!-- 6 应用：生活 -->
+    <section class="slide">
+      <p class="eyebrow">02 螺丝的应用</p>
+      <h1>生活里的三个例子</h1>
+      <div class="rule"></div>
+      <ul class="points">
+        <li><strong>眼镜</strong>：镜腿和镜框用小螺丝连接，松了自己就能拧紧。</li>
+        <li><strong>家具</strong>：桌椅、柜子、床架，很多地方都靠螺丝组装起来。</li>
+        <li><strong>电子产品</strong>：手机、电脑、家电的外壳和内部零件，都要用螺丝固定。</li>
+      </ul>
+      <div class="foot"><span class="topic">关于螺丝的事情</span><span>6 / 10</span></div>
+    </section>
+
+    <!-- 7 自攻螺丝 -->
+    <section class="slide">
+      <p class="eyebrow">03 不同种类的螺丝</p>
+      <h1>自攻螺丝</h1>
+      <div class="rule"></div>
+      <ul class="points">
+        <li>头是尖的，螺纹比较密，能自己<strong>“攻”出螺纹</strong>。</li>
+        <li>适合薄铁板、塑料这些不太硬的材料。</li>
+        <li>一般<strong>不用先打孔</strong>，也不一定需要螺母。</li>
+        <li>常配电动螺丝刀使用，装起来很快。</li>
+        <li>常见地方：机箱、家电外壳、金属薄板。</li>
+      </ul>
+      <div class="foot"><span class="topic">关于螺丝的事情</span><span>7 / 10</span></div>
+    </section>
+
+    <!-- 8 木工螺丝 -->
+    <section class="slide">
+      <p class="eyebrow">03 不同种类的螺丝</p>
+      <h1>木工螺丝</h1>
+      <div class="rule"></div>
+      <ul class="points">
+        <li>专门为木头设计，<strong>螺纹间距比较大</strong>。</li>
+        <li>尖头容易吃进木头，拧起来比较省力。</li>
+        <li>有的带防裂设计，木头不容易被撑裂。</li>
+        <li>头部多是十字槽，用十字螺丝刀就能拧。</li>
+        <li>常见地方：家具、木架、地板、木箱。</li>
+      </ul>
+      <div class="foot"><span class="topic">关于螺丝的事情</span><span>8 / 10</span></div>
+    </section>
+
+    <!-- 9 钻尾螺丝 -->
+    <section class="slide">
+      <p class="eyebrow">03 不同种类的螺丝</p>
+      <h1>钻尾螺丝</h1>
+      <div class="rule"></div>
+      <ul class="points">
+        <li>尾部像钻头，能<strong>直接钻穿薄铁皮</strong>。</li>
+        <li>前面钻孔、后面攻螺纹，一次就完成。</li>
+        <li>常用于彩钢瓦、钢板和金属框架。</li>
+        <li>一般要用电动螺丝刀或者电钻。</li>
+        <li>好处是省时间，<strong>不用先打孔</strong>。</li>
+      </ul>
+      <div class="foot"><span class="topic">关于螺丝的事情</span><span>9 / 10</span></div>
+    </section>
+
+    <!-- 10 结尾 -->
+    <section class="slide end">
+      <p class="eyebrow">小结</p>
+      <p class="big">小小一颗螺丝，<br>撑起大大的世界。</p>
+      <div class="rule"></div>
+      <ol class="sums">
+        <li>螺丝很小，却把很多东西牢牢连在一起。</li>
+        <li>从木头螺旋到标准螺丝，它一直在被改进。</li>
+        <li>认识不同的螺丝，就能在需要的时候选对那一颗。</li>
+      </ol>
+      <p class="sign">谢谢观看 · 关于螺丝的事情</p>
+      <div class="foot"><span class="topic">关于螺丝的事情</span><span>10 / 10</span></div>
+    </section>
+
+  </div>
+</div>
+
+<div id="controls">
+  <button id="prev" type="button">← 上一页</button>
+  <div id="dots"></div>
+  <span id="counter">1 / 10</span>
+  <button id="next" type="button">下一页 →</button>
+</div>
+
+<script>
+(function(){
+  var stage   = document.getElementById('stage');
+  var slides  = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total   = slides.length;
+  var counter = document.getElementById('counter');
+  var bar     = document.getElementById('bar');
+  var dotsBox = document.getElementById('dots');
+  var current = 0;
+
+  slides.forEach(function(s, n){
+    var d = document.createElement('button');
+    d.type = 'button';
+    d.className = 'dot';
+    d.title = '第 ' + (n + 1) + ' 页';
+    d.setAttribute('aria-label', '第 ' + (n + 1) + ' 页');
+    d.addEventListener('click', function(){ go(n); });
+    dotsBox.appendChild(d);
+  });
+  var dots = Array.prototype.slice.call(dotsBox.children);
+
+  function go(n){
+    current = Math.max(0, Math.min(total - 1, n));
+    slides.forEach(function(s, k){ s.classList.toggle('active', k === current); });
+    dots.forEach(function(d, k){ d.classList.toggle('on', k === current); });
+    counter.textContent = (current + 1) + ' / ' + total;
+    bar.style.width = ((current + 1) / total * 100) + '%';
+    if (history.replaceState) { try { history.replaceState(null, '', '#' + (current + 1)); } catch (err) {} }
+  }
+  function next(){ go(current + 1); }
+  function prev(){ go(current - 1); }
+
+  function toggleFullscreen(){
+    if (!document.fullscreenElement){
+      if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+    } else if (document.exitFullscreen){
+      document.exitFullscreen();
+    }
+  }
+
+  document.addEventListener('keydown', function(e){
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'ArrowDown' || k === ' ' || k === 'PageDown' || k === 'Enter'){
+      e.preventDefault(); next();
+    } else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace'){
+      e.preventDefault(); prev();
+    } else if (k === 'Home'){ e.preventDefault(); go(0); }
+    else if (k === 'End'){ e.preventDefault(); go(total - 1); }
+    else if (k === 'f' || k === 'F'){ toggleFullscreen(); }
+  });
+
+  document.getElementById('prev').addEventListener('click', prev);
+  document.getElementById('next').addEventListener('click', next);
+
+  // 鼠标点左右两侧也能翻页（点中间偏上区域不触发按钮时）
+  stage.addEventListener('click', function(e){
+    var r = stage.getBoundingClientRect();
+    var x = (e.clientX - r.left) / r.width;
+    if (x > 0.85) next();
+    else if (x < 0.15) prev();
+  });
+
+  function fit(){
+    var s = Math.min(window.innerWidth / 1280, window.innerHeight / 720) * 0.94;
+    stage.style.transform = 'scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit);
+  window.addEventListener('beforeprint', function(){ stage.style.transform = 'none'; });
+  window.addEventListener('afterprint', fit);
+
+  fit();
+  var start = parseInt((location.hash || '').replace('#', ''), 10);
+  go(isNaN(start) ? 0 : start - 1);
+})();
+</script>
+</body>
+</html>
