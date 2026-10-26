@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>The Story of Screws | English</title>
+<style>
+:root{
+  --accent:#A8462A;
+  --accent-deep:#7D301D;
+  --accent-soft:#F1DED6;
+  --paper:#F7F3EA;
+  --paper-2:#FCF9F3;
+  --ink:#24221E;
+  --muted:#736E64;
+  --line:#D8D0C2;
+  --steel:#8B9292;
+  --stage-w:1280px;
+  --stage-h:720px;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;margin:0;}
+body{
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255,255,255,.52), transparent 38%),
+    radial-gradient(circle at 82% 88%, rgba(122,110,94,.10), transparent 42%),
+    #DED8CC;
+  color:var(--ink);
+  font-family:"Segoe UI","Microsoft YaHei","PingFang SC","Hiragino Sans GB","Noto Sans SC",sans-serif;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow:hidden;
+}
+button,a{font-family:inherit;}
+button{-webkit-tap-highlight-color:transparent;}
+::selection{background:var(--accent-soft);color:var(--ink);}
+.sr-only{
+  position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+
+#viewport{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+#stage{
+  width:var(--stage-w);height:var(--stage-h);flex:0 0 auto;position:relative;
+  background:var(--paper);
+  box-shadow:0 30px 80px rgba(47,37,26,.24),0 1px 0 rgba(255,255,255,.65) inset;
+  overflow:hidden;transform-origin:center center;
+}
+
+/* ---------- slide frame ---------- */
+.slide{
+  position:absolute;inset:0;z-index:1;
+  padding:46px 72px 64px;
+  display:flex;flex-direction:column;
+  background:var(--paper);
+  opacity:0;visibility:hidden;transform:translateY(8px);
+  transition:opacity .28s ease,transform .28s ease,visibility .28s;
+}
+.slide.is-active{opacity:1;visibility:visible;transform:none;}
+.slide-head{flex:0 0 auto;}
+.eyebrow{
+  margin:0 0 12px;display:flex;align-items:center;gap:10px;
+  color:var(--muted);font-size:11.5px;line-height:1.2;
+  letter-spacing:.14em;text-transform:uppercase;font-weight:650;
+}
+.eyebrow .part{color:var(--accent);font-weight:800;font-variant-numeric:tabular-nums;}
+.eyebrow .sep{display:block;width:18px;height:1px;background:var(--accent);opacity:.7;}
+h1{
+  margin:0;max-width:1050px;
+  color:var(--accent);font-size:46px;line-height:1.18;font-weight:750;
+  letter-spacing:-.018em;text-wrap:balance;
+}
+.rule{width:44px;height:3px;background:var(--accent);margin-top:17px;}
+.slide-body{flex:1;min-height:0;margin-top:24px;}
+
+/* ---------- navigation chrome ---------- */
+.progress-track{
+  position:absolute;left:0;top:0;width:100%;height:3px;
+  background:rgba(216,208,194,.62);z-index:30;
+}
+#progress{height:100%;width:0;background:var(--accent);transition:width .24s ease;}
+.edge{
+  position:absolute;top:50%;z-index:25;width:34px;height:34px;padding:0;
+  transform:translateY(-50%);border:1px solid var(--line);border-radius:50%;
+  background:rgba(247,243,234,.92);color:var(--accent);
+  display:grid;place-items:center;cursor:pointer;opacity:.58;
+  transition:opacity .18s ease,background .18s ease,border-color .18s ease,color .18s ease;
+}
+.edge:hover,.edge:focus-visible{opacity:1;background:var(--accent);border-color:var(--accent);color:#fff;outline:none;}
+.edge:disabled{opacity:.16;cursor:default;background:rgba(247,243,234,.92);border-color:var(--line);color:var(--accent);}
+.edge svg{width:14px;height:14px;display:block;}
+.edge.prev{left:17px;}
+.edge.next{right:17px;}
+
+.slide-footer{
+  position:absolute;left:72px;right:72px;bottom:19px;height:28px;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  border-top:1px solid var(--line);padding-top:9px;
+  color:var(--muted);font-size:10.5px;line-height:1;
+  letter-spacing:.08em;text-transform:uppercase;
+}
+.footer-brand{min-width:160px;white-space:nowrap;}
+.ticks{display:flex;align-items:center;justify-content:center;gap:5px;flex:1;}
+.tick{
+  width:9px;height:3px;padding:0;border:0;border-radius:0;background:#CFC6B8;
+  cursor:pointer;transition:width .18s ease,background .18s ease;
+}
+.tick:hover{background:var(--accent);opacity:.65;}
+.tick.is-on{width:24px;background:var(--accent);}
+.footer-right{display:flex;align-items:center;justify-content:flex-end;gap:16px;min-width:232px;white-space:nowrap;}
+.page-count{font-variant-numeric:tabular-nums;letter-spacing:.06em;color:var(--muted);}
+.page-count b{color:var(--accent);font-weight:800;font-size:12px;}
+.lang-switch{display:flex;align-items:center;gap:6px;}
+.lang-switch a{color:var(--muted);text-decoration:none;padding:3px 1px;border-bottom:1px solid transparent;}
+.lang-switch a:hover{border-bottom-color:var(--accent);color:var(--accent);}
+.lang-switch a.is-current{color:var(--accent);font-weight:800;border-bottom-color:var(--accent);}
+.lang-switch .slash{color:#B7AD9F;}
+
+/* ---------- cover ---------- */
+.cover{padding:50px 72px 64px;}
+.cover-grid{
+  flex:1;min-height:0;display:grid;grid-template-columns:1.08fr .92fr;
+  align-items:center;gap:18px;padding-bottom:8px;
+}
+.cover-copy{position:relative;z-index:2;padding-top:4px;}
+.cover-kicker{
+  margin:0 0 18px;color:var(--accent);font-size:12px;font-weight:750;
+  letter-spacing:.16em;text-transform:uppercase;
+}
+.cover h1{
+  max-width:690px;font-size:84px;line-height:1.05;letter-spacing:-.035em;font-weight:800;
+}
+html[lang="en"] .cover h1{font-size:76px;line-height:1.02;max-width:650px;}
+.cover h1 .line{display:block;}
+.cover-rule{width:74px;height:4px;background:var(--accent);margin:27px 0 23px;}
+.cover-sub{margin:0;color:var(--ink);font-size:22px;line-height:1.55;letter-spacing:-.01em;}
+.cover-cats{margin:14px 0 0;color:var(--muted);font-size:14px;letter-spacing:.09em;}
+.cover-hint{
+  margin:36px 0 0;color:var(--muted);font-size:12px;line-height:1.6;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.cover-hint kbd{
+  min-width:24px;padding:3px 7px;border:1px solid var(--line);border-bottom-width:2px;
+  border-radius:3px;background:var(--paper-2);color:var(--accent);
+  font-family:inherit;font-size:11px;font-weight:750;line-height:1;
+}
+.cover-hint .hint-sep{width:1px;height:12px;background:var(--line);margin:0 5px;}
+.cover-art{
+  height:100%;min-height:0;display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.cover-art svg{width:100%;height:100%;max-height:530px;display:block;overflow:visible;}
+
+/* ---------- contents ---------- */
+.toc{
+  flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;
+  margin-top:8px;max-width:1110px;
+}
+.toc-row{
+  position:relative;width:100%;display:grid;
+  grid-template-columns:58px minmax(0,1fr) 94px 24px;
+  align-items:center;gap:20px;
+  padding:19px 18px 19px 4px;
+  border:0;border-top:1px solid var(--line);
+  background:transparent;color:inherit;text-align:left;cursor:pointer;
+  transition:background .18s ease,padding-left .18s ease;
+}
+.toc-row:last-child{border-bottom:1px solid var(--line);}
+.toc-row:hover,.toc-row:focus-visible{background:rgba(168,70,42,.045);padding-left:12px;outline:none;}
+.toc-row:focus-visible{box-shadow:0 0 0 2px var(--accent-soft) inset;}
+.toc-no{color:var(--accent);font-size:13px;font-weight:800;letter-spacing:.12em;}
+.toc-main h2{
+  margin:0 0 4px;color:var(--ink);font-size:27px;line-height:1.25;font-weight:700;
+  letter-spacing:-.012em;transition:color .18s ease;
+}
+.toc-row:hover .toc-main h2,.toc-row:focus-visible .toc-main h2{color:var(--accent);}
+.toc-main p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.45;}
+.toc-range{text-align:right;color:var(--muted);font-size:10.5px;letter-spacing:.12em;font-variant-numeric:tabular-nums;}
+.toc-arrow{color:var(--accent);font-size:19px;line-height:1;transition:transform .18s ease;}
+.toc-row:hover .toc-arrow,.toc-row:focus-visible .toc-arrow{transform:translateX(5px);}
+
+/* ---------- split pages ---------- */
+.split{
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  gap:52px;align-items:center;
+}
+.points{list-style:none;margin:0;padding:0;}
+.points li{
+  position:relative;margin:0 0 17px;padding-left:25px;
+  font-size:23px;line-height:1.48;letter-spacing:-.008em;
+}
+.points li:last-child{margin-bottom:0;}
+.points li::before{
+  content:"";position:absolute;left:0;top:.78em;
+  width:11px;height:2px;background:var(--accent);
+}
+.points strong{color:var(--accent);font-weight:750;}
+html[lang="en"] .points li{font-size:22px;line-height:1.46;}
+
+.diagram{
+  margin:0;height:100%;max-height:432px;min-height:360px;
+  border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(255,255,255,.64),rgba(255,255,255,.18));
+  padding:15px 17px 13px;
+  display:flex;flex-direction:column;min-height:0;
+}
+.diagram-top{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  color:var(--muted);font-size:9.5px;line-height:1.2;
+  letter-spacing:.13em;text-transform:uppercase;
+}
+.diagram-top b{color:var(--accent);font-weight:800;}
+.diagram svg{width:100%;flex:1;min-height:0;display:block;margin-top:2px;overflow:visible;}
+.diagram-note{
+  margin-top:5px;padding-top:8px;border-top:1px solid var(--line);
+  color:var(--muted);font-size:11.5px;line-height:1.4;text-align:right;
+}
+.svg-label{fill:var(--accent);font-size:15px;font-weight:700;letter-spacing:.02em;}
+.svg-label-small{fill:var(--muted);font-size:10.5px;letter-spacing:.14em;}
+.svg-leader{stroke:var(--accent);stroke-width:1.2;fill:none;opacity:.72;}
+.svg-dot{fill:var(--accent);}
+html[lang="en"] .svg-label{font-size:12.5px;letter-spacing:.02em;}
+
+/* ---------- timeline ---------- */
+.timeline-wrap{height:100%;display:flex;flex-direction:column;justify-content:center;padding-bottom:10px;}
+.lead{
+  max-width:920px;margin:0 0 38px;color:var(--ink);
+  font-size:21px;line-height:1.5;letter-spacing:-.008em;
+}
+.lead strong{color:var(--accent);font-weight:750;}
+.timeline{
+  position:relative;display:grid;grid-template-columns:repeat(5,1fr);
+  gap:22px;
+}
+.timeline::before{
+  content:"";position:absolute;left:2px;right:1px;top:61px;height:1px;background:var(--line);
+}
+.t-item{position:relative;min-width:0;padding-top:86px;}
+.t-date{
+  position:absolute;left:0;top:0;color:var(--accent);
+  font-size:15.5px;font-weight:750;line-height:1.28;letter-spacing:.01em;
+}
+.t-dot{
+  position:absolute;left:0;top:56px;width:11px;height:11px;border-radius:50%;
+  background:var(--accent);box-shadow:0 0 0 4px var(--paper);
+}
+.t-item p{margin:0;font-size:18.5px;line-height:1.5;letter-spacing:-.006em;}
+html[lang="en"] .timeline{gap:20px;}
+html[lang="en"] .t-date{font-size:14px;}
+html[lang="en"] .t-item p{font-size:17px;}
+
+/* ---------- cards ---------- */
+.case-wrap{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:18px;}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:19px;height:auto;flex:0 0 322px;align-items:stretch;}
+.case-takeaway{
+  margin:0;padding:12px 18px;border-left:3px solid var(--accent);
+  background:rgba(168,70,42,.055);color:var(--ink);
+  font-size:17.5px;line-height:1.5;letter-spacing:-.005em;
+}
+.case-takeaway strong{color:var(--accent);font-weight:750;}
+html[lang="en"] .case-takeaway{font-size:16.5px;}
+.card{
+  position:relative;overflow:hidden;
+  border:1px solid var(--line);background:var(--paper-2);
+  padding:21px 22px 21px;display:flex;flex-direction:column;
+}
+.card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--accent);}
+.card::after{
+  content:attr(data-no);position:absolute;right:14px;bottom:1px;
+  color:var(--accent);opacity:.055;font-size:86px;line-height:1;
+  font-weight:800;letter-spacing:-.05em;pointer-events:none;
+}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px;}
+.card-no{color:var(--accent);font-size:11px;font-weight:800;letter-spacing:.15em;padding-top:4px;}
+.card-icon{width:96px;height:74px;color:var(--accent);flex:0 0 auto;}
+.card-icon svg{display:block;width:100%;height:100%;}
+.card h2{margin:0 0 8px;color:var(--accent);font-size:26px;line-height:1.25;font-weight:750;}
+.card p{margin:0;color:var(--ink);font-size:18px;line-height:1.48;max-width:310px;position:relative;z-index:1;}
+.card-extra{display:block;margin-top:7px;color:var(--muted);font-size:15.5px;line-height:1.45;}
+.card .card-note{margin-top:auto;padding-top:14px;color:var(--muted);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;}
+html[lang="en"] .card h2{font-size:24px;}
+html[lang="en"] .card p{font-size:17px;}
+html[lang="en"] .card-extra{font-size:15px;}
+
+/* ---------- development comparison ---------- */
+.compare-row{flex:1;display:grid;grid-template-columns:1fr 26px 1fr;gap:7px;align-items:stretch;min-height:0;margin-top:8px;}
+.compare-col{
+  min-width:0;display:flex;flex-direction:column;align-items:center;
+  border:1px solid var(--line);background:rgba(247,243,234,.58);
+  padding:10px 6px 8px;
+}
+.compare-col .compare-tag{
+  color:var(--muted);font-size:9px;letter-spacing:.14em;text-transform:uppercase;line-height:1.2;
+  align-self:flex-start;
+}
+.compare-col .compare-name{margin-top:3px;color:var(--accent);font-size:14px;font-weight:750;align-self:flex-start;}
+.compare-col svg{width:100%;flex:1;min-height:0;max-height:260px;}
+.compare-arrow{display:grid;place-items:center;color:var(--accent);font-size:20px;font-weight:700;}
+
+/* ---------- drive types ---------- */
+.drive-grid{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:11px;min-height:0;margin-top:7px;}
+.drive{
+  min-height:0;border:1px solid var(--line);background:rgba(247,243,234,.58);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:6px;
+}
+.drive svg{width:82px;height:82px;display:block;}
+.drive .drive-name{color:var(--ink);font-size:13px;font-weight:700;line-height:1.2;}
+.drive .drive-en{color:var(--muted);font-size:8.5px;letter-spacing:.13em;text-transform:uppercase;line-height:1.4;}
+
+/* ---------- closing ---------- */
+.closing{padding-bottom:64px;}
+.closing h1{font-size:48px;}
+.summary-list{
+  list-style:none;counter-reset:sum;margin:0;padding:0;max-width:940px;
+}
+.summary-list li{
+  counter-increment:sum;position:relative;
+  padding-left:58px;margin:0 0 22px;
+  font-size:24px;line-height:1.45;letter-spacing:-.008em;
+}
+.summary-list li:last-child{margin-bottom:0;}
+.summary-list li::before{
+  content:counter(sum,decimal-leading-zero);
+  position:absolute;left:0;top:1px;width:38px;height:24px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--accent);color:var(--accent);
+  font-size:10px;font-weight:800;letter-spacing:.08em;
+}
+.closing-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:46px;min-height:0;padding:4px 0 2px;}
+.motto{
+  position:relative;overflow:hidden;margin-top:0;
+  background:var(--accent);color:var(--paper);
+  padding:26px 32px 25px;
+  display:flex;align-items:center;justify-content:space-between;gap:28px;
+}
+.motto-copy{position:relative;z-index:2;}
+.motto .tagline{
+  margin:0;color:#FFF8EE;font-size:58px;line-height:1.08;font-weight:800;letter-spacing:-.035em;
+}
+html[lang="en"] .motto .tagline{font-size:52px;}
+.motto .tagline-en{
+  margin:8px 0 0;color:rgba(255,248,238,.72);
+  font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+}
+.motto .thanks{
+  position:relative;z-index:2;text-align:right;color:rgba(255,248,238,.74);
+  font-size:10px;line-height:1.7;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;
+}
+.motto-screw{position:absolute;right:112px;top:50%;transform:translateY(-50%) rotate(16deg);opacity:.16;}
+.motto-screw svg{width:76px;height:150px;display:block;}
+
+/* ---------- print ---------- */
+@page{size:13.333333in 7.5in;margin:0;}
+@media print{
+  html,body{height:auto;overflow:visible;background:#fff;}
+  #viewport{position:static;display:block;overflow:visible;}
+  #stage{
+    width:1280px;height:auto;transform:none!important;box-shadow:none;
+    background:var(--paper);overflow:visible;
+  }
+  .progress-track,.edge,.sr-only,.ticks,.lang-switch{display:none!important;}
+  .slide{
+    position:relative;inset:auto;width:1280px;height:720px;
+    opacity:1!important;visibility:visible!important;transform:none!important;
+    page-break-after:always;break-after:page;background:var(--paper);
+  }
+  .slide:last-child{page-break-after:auto;break-after:auto;}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.001ms!important;animation-duration:.001ms!important;}
+}
+</style>
+</head>
+<body>
+  <main id="viewport" aria-label="The Story of Screws | English">
+    <div id="stage">
+      <div class="progress-track" aria-hidden="true"><div id="progress"></div></div>
+      <button class="edge prev" id="prev" type="button" aria-label="Previous slide">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3L5 8l5 5"/></svg>
+      </button>
+      <button class="edge next" id="next" type="button" aria-label="Next slide">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3l5 5-5 5"/></svg>
+      </button>
+      
+  <section class="slide cover is-active" data-page="1" aria-label="Cover: The Story of Screws" aria-roledescription="slide">
+    
+      <div class="cover-grid">
+        <div class="cover-copy">
+          <p class="cover-kicker">A short deck for students</p>
+          <h1><span class="line">The Story </span><span class="line">of Screws</span></h1>
+          <div class="cover-rule"></div>
+          <p class="cover-sub">A small object with a long history.</p>
+          <p class="cover-cats">History · Development · Uses · Types</p>
+          <p class="cover-hint"><kbd>→</kbd><kbd>SPACE</kbd> next <span class="hint-sep"></span> <kbd>F</kbd> full screen <span class="hint-sep"></span> 12 slides</p>
+        </div>
+        <div class="cover-art">
+      <svg viewBox="0 0 470 550" role="img" aria-label="An enlarged line drawing of a screw">
+        <circle cx="238" cy="274" r="205" fill="none" stroke="#D8D0C2" stroke-width="1" stroke-dasharray="2 9"/>
+        <circle cx="238" cy="274" r="164" fill="none" stroke="#D8D0C2" stroke-width="1" opacity=".55"/>
+        <path d="M48 274H428" stroke="#E4DCCF" stroke-width="1"/>
+        <path d="M238 52V496" stroke="#E4DCCF" stroke-width="1"/>
+        <g transform="rotate(9 238 274)">
+          <rect x="164" y="26" width="148" height="42" rx="18" fill="#A8462A"/>
+          <line x1="183" y1="47" x2="293" y2="47" stroke="#F7F3EA" stroke-width="6" stroke-linecap="round" opacity=".82"/>
+          <rect x="206" y="66" width="64" height="20" fill="#CFC8BA" stroke="#24221E" stroke-width="2"/>
+          <path d="M204 86H272V421L238 500L204 421Z" fill="#F2EDE3" stroke="#24221E" stroke-width="2.6" stroke-linejoin="round"/>
+          <clipPath id="cover-shank"><path d="M204 86H272V421L238 500L204 421Z"/></clipPath>
+          <g clip-path="url(#cover-shank)" stroke="#A8462A" stroke-width="5.2" stroke-linecap="round">
+            <line x1="194" y1="112" x2="278" y2="101"/>
+        <line x1="194" y1="135" x2="278" y2="124"/>
+        <line x1="194" y1="158" x2="278" y2="147"/>
+        <line x1="194" y1="181" x2="278" y2="170"/>
+        <line x1="194" y1="204" x2="278" y2="193"/>
+        <line x1="194" y1="227" x2="278" y2="216"/>
+        <line x1="194" y1="250" x2="278" y2="239"/>
+        <line x1="194" y1="273" x2="278" y2="262"/>
+        <line x1="194" y1="296" x2="278" y2="285"/>
+        <line x1="194" y1="319" x2="278" y2="308"/>
+        <line x1="194" y1="342" x2="278" y2="331"/>
+        <line x1="194" y1="365" x2="278" y2="354"/>
+        <line x1="194" y1="388" x2="278" y2="377"/>
+        <line x1="194" y1="411" x2="278" y2="400"/>
+        <line x1="194" y1="434" x2="278" y2="423"/>
+          </g>
+          <line x1="220" y1="92" x2="220" y2="450" stroke="#FFFFFF" stroke-width="5" opacity=".28"/>
+          <text x="56" y="521" fill="#736E64" font-size="10" letter-spacing="2.4">FIG. 01 / ANATOMY</text>
+          <text x="373" y="521" fill="#736E64" font-size="10" letter-spacing="2.4" text-anchor="end">1 : 4</text>
+        </g>
+      </svg></div>
+      </div>
+    
+    <footer class="slide-footer">
+      <span class="footer-brand">The Story of Screws</span>
+      <div class="ticks" aria-label="Slide navigation"></div>
+      <div class="footer-right">
+        <span class="page-count"><b>01</b> / 12</span>
+        <span class="lang-switch">
+          <a href="screws-en.html" class="is-current" aria-current="page">EN</a>
+          <span class="slash">/</span>
+          <a href="screws-zh.html" class="other-lang" data-base="screws-zh.html" target="_blank" rel="noopener">中文</a>
+        </span>
+      </div>
+    </footer>
+  </section>
+
+  <section class="slide" data-page="2" aria-label="Contents" aria-roledescription="slide">
+    
+      
+    <header class="slide-head">
+      <p class="eyebrow"><span class="part">00</span><span class="sep"></span>CONTENTS</p>
+      <h1>Contents</h1>
+      <div class="rule"></div>
+    </header>
+      <div class="toc">
+        <button class="toc-row" type="button" data-goto="3">
+          <span class="toc-no">01</span>
+          <span class="toc-main"><h2>History</h2><p>From water screws to metal fasteners</p></span>
+          <span class="toc-range">P03–04</span><span class="toc-arrow">→</span>
+        </button>
+        <button class="toc-row" type="button" data-goto="5">
+          <span class="toc-no">02</span>
+          <span class="toc-main"><h2>Development</h2><p>From hand-made to one standard</p></span>
+          <span class="toc-range">P05–06</span><span class="toc-arrow">→</span>
+        </button>
+        <button class="toc-row" type="button" data-goto="7">
+          <span class="toc-no">03</span>
+          <span class="toc-main"><h2>Uses</h2><p>In engineering and everyday life</p></span>
+          <span class="toc-range">P07–08</span><span class="toc-arrow">→</span>
+        </button>
+        <button class="toc-row" type="button" data-goto="9">
+          <span class="toc-no">04</span>
+          <span class="toc-main"><h2>Types</h2><p>Three common screws</p></span>
+          <span class="toc-range">P09–11</span><span class="toc-arrow">→</span>
+        </button>
+      </div>
+    
+    <footer class="slide-footer">
+      <span class="footer-brand">The Story of Screws</span>
+      <div class="ticks" aria-label="Slide navigation"></div>
+      <div class="footer-right">
+        <span class="page-count"><b>02</b> / 12</span>
+        <span class="lang-switch">
+          <a href="screws-en.html" class="is-current" aria-current="page">EN</a>
+          <span class="slash">/</span>
+          <a href="screws-zh.html" class="other-lang" data-base="screws-zh.html" target="_blank" rel="noopener">中文</a>
+        </span>
+      </div>
+    </footer>
+  </section>
+
+  <section class="slide" data-page="3" aria-label="History: the first screws" aria-roledescription="slide">
+    
+      
+    <header class="slide-head">
+      <p class="eyebrow"><span class="part">01</span><span class="sep"></span>HISTORY</p>
+      <h1>What did the first screws look like?</h1>
+      <div class="rule"></div>
+    </header>
+      <div class="slide-body split">
+        <ul class="points">
+      <li>Early screws were more like machines.</li>
+      <li>A common early type was a <strong>wooden spiral</strong>.</li>
+      <li>It lifted water and pressed grapes or olives.</li>
+      <li>Workers cut the thread by hand.</li>
+      <li>A thread is like a ramp around a cylinder.</li>
+    </ul>
+        
+    <figure class="diagram">
+      <div class="diagram-top"><span><b>FIG. 3</b> · Early screw</span><span>WOOD / WATER</span></div>
+      
+      <svg viewBox="0 0 440 350" role="img" aria-label="A wooden screw pump lifting water">
+        <path d="M34 302h372" stroke="#D8D0C2" stroke-width="1"/>
+        <g stroke="#8B9292" stroke-width="2" fill="none" opacity=".75">
+          <path d="M42 313c9-7 18-7 27 0s18 7 27 0 18-7 27 0 18 7 27 0"/>
+          <path d="M54 327c9-7 18-7 27 0s18 7 27 0 18-7 27 0"/>
+        </g>
+        <g transform="rotate(-24 220 181)">
+          <rect x="166" y="38" width="108" height="286" rx="54" fill="#EEE8DC" stroke="#8B9292" stroke-width="2"/>
+          <rect x="164" y="34" width="112" height="14" rx="7" fill="#DDD5C7" stroke="#8B9292" stroke-width="1.5"/>
+          <rect x="164" y="314" width="112" height="14" rx="7" fill="#DDD5C7" stroke="#8B9292" stroke-width="1.5"/>
+          <line x1="220" y1="38" x2="220" y2="324" stroke="#8B9292" stroke-width="3"/>
+          <path d="M220 56C168 83 272 110 220 137C168 164 272 191 220 218C168 245 272 272 220 299"
+                fill="none" stroke="#A8462A" stroke-width="9" stroke-linecap="round"/>
+          <path d="M220 56C272 83 168 110 220 137C272 164 168 191 220 218C272 245 168 272 220 299"
+                fill="none" stroke="#A8462A" stroke-width="2" opacity=".32" stroke-linecap="round"/>
+          <path d="M220 38V12H280" fill="none" stroke="#8B9292" stroke-width="5" stroke-linecap="round"/>
+        </g>
+        <path class="svg-leader" d="M328 74L287 93"/>
+        <circle class="svg-dot" cx="287" cy="93" r="3"/>
+        <text class="svg-label" x="334" y="69">wooden spiral</text>
+        <path class="svg-leader" d="M110 286L154 270"/>
+        <circle class="svg-dot" cx="154" cy="270" r="3"/>
+        <text class="svg-label" x="28" y="291">lifts water</text>
+        <text class="svg-label-small" x="28" y="48">ARCHIMEDES SCREW</text>
+      </svg>
+      <div class="diagram-note">Turning the spiral lifts the water.</div>
+    </figure>
+      </div>
+    
+    <footer class="slide-footer">
+      <span class="footer-brand">The Story of Screws</span>
+      <div class="ticks" aria-label="Slide navigation"></div>
+      <div class="footer-right">
+        <span class="page-count"><b>03</b> / 12</span>
+        <span class="lang-switch">
+          <a href="screws-en.html" class="is-current" aria-current="page">EN</a>
+          <span class="slash">/</span>
+          <a href="screws-zh.html" class="other-lang" data-base="screws-zh.html" target="_blank" rel="noopener">中文</a>
+        </span>
+      </div>
+    </footer>
+  </section>
+
+  <section class="slide" data-page="4" aria-label="History: when screws were invented" aria-roledescription="slide">
+    
+      
+    <header class="slide-head">
+      <p class="eyebrow"><span class="part">01</span><span class="sep"></span>HISTORY</p>
+      <h1>When were screws invented?</h1>
+      <div class="rule"></div>
+    </header>
+      <div class="slide-body timeline-wrap">
+        <p class="lead"><strong>No one invented the screw in one day.</strong> It changed step by step.</p>
+        <div class="timeline">
+          <div class="t-item"><span class="t-date">3rd century BC</span><span class="t-dot"></span><p>The Archimedes screw lifts water.</p></div>
+          <div class="t-item"><span class="t-date">1400s</span><span class="t-dot"></span><p>Metal screws are made by hand.</p></div>
+          <div class="t-item"><span class="t-date">1797</span><span class="t-dot"></span><p>A lathe cuts threads more evenly.</p></div>
+          <div class="t-item"><span class="t-date">1841</span><span class="t-dot"></span><p>Britain sets a standard thread.</p></div>
+          <div class="t-item"><span class="t-date">Late 1940s</span><span class="t-dot"></span><p>Metric and inch standards are defined.</p></div>
+        </div>
+      </div>
+    
+    <footer class="slide-footer">
+      <span class="footer-brand">The Story of Screws</span>
+      <div class="ticks" aria-label="Slide navigation"></div>
+      <div class="footer-right">
+        <span class="page-count"><b>04</b> / 12</span>
+        <span class="lang-switch">
+          <a href="screws-en.html" class="is-current" aria-current="page">EN</a>
+          <span class="slash">/</span>
+          <a href="screws-zh.html" class="other-lang" data-base="screws-zh.html" target="_blank" rel="noopener">中文</a>
+        </span>
+      </div>
+    </footer>
+  </section>
+
+  <section class="slide" data-page="5" aria-label="Development: from hand-made to standard" aria-roledescription="slide">
+    
+      
+    <header class="slide-head">
+      <p class="eyebrow"><span class="part">02</span><span class="sep"></span>DEVELOPMENT · PART 1</p>
+      <h1>How did screws become what they are today?</h1>
+      <div class="rule"></div>
+    </header>
+      <div class="slide-body split">
+        <ul class="points">
+      <li>At first, workers cut each thread by hand.</li>
+      <li>In 1797, Maudslay's lathe cut threads more evenly.</li>
+      <li>In 1841, Whitworth pushed for one standard.</li>
+      <li>Standard threads let screws and nuts fit together.</li>
+      <li>Factories could then make screws in large numbers.</li>
+    </ul>
+        <figure class="diagram">
+          <div class="diagram-top"><span><b>FIG. 05</b> · hand to lathe</span><span>BEFORE / AFTER</span></div>
+          
+      <div class="compare-row">
+        <div class="compare-col">
+          <span class="compare-tag">1400s / BY HAND</span>
+          <span class="compare-name">Hand-made</span>
+          <svg viewBox="0 0 150 280" aria-hidden="true">
+            <rect x="43" y="25" width="64" height="22" rx="8" fill="#24221E"/>
+            <path d="M54 47H96V212L75 258L54 212Z" fill="#E9E2D6" stroke="#24221E" stroke-width="2.2"/>
+            <g stroke="#24221E" stroke-width="3.2" stroke-linecap="round" opacity=".78">
+              <line x1="56" y1="81" x2="94" y2="74"/>
+          <line x1="51" y1="102" x2="99" y2="95"/>
+          <line x1="56" y1="123" x2="94" y2="116"/>
+          <line x1="51" y1="144" x2="99" y2="137"/>
+          <line x1="56" y1="165" x2="94" y2="158"/>
+          <line x1="51" y1="186" x2="99" y2="179"/>
+          <line x1="56" y1="207" x2="94" y2="200"/>
+          <line x1="51" y1="228" x2="99" y2="221"/>
+            </g>
+            <path d="M64 60l4 7m16-4l-5 8m10 6l-3 8m7 16l-5 6" stroke="#A8462A" stroke-width="1.4" opacity=".65"/>
+          </svg>
+        </div>
+        <div class="compare-arrow" aria-hidden="true">→</div>
+        <div class="compare-col">
+          <span class="compare-tag">1797 / LATHE</span>
+          <span class="compare-name">Machine-made</span>
+          <svg viewBox="0 0 150 280" aria-hidden="true">
+            <rect x="43" y="25" width="64" height="22" rx="8" fill="#A8462A"/>
+            <line x1="51" y1="36" x2="99" y2="36" stroke="#F7F3EA" stroke-width="3" opacity=".8"/>
+            <path d="M54 47H96V212L75 258L54 212Z" fill="#F1ECE1" stroke="#24221E" stroke-width="2.2"/>
+            <g stroke="#A8462A" stroke-width="3.2" stroke-linecap="round">
+              <line x1="54" y1="81" x2="96" y2="74"/>
+          <line x1="54" y1="102" x2="96" y2="95"/>
+          <line x1="54" y1="123" x2="96" y2="116"/>
+          <line x1="54" y1="144" x2="96" y2="137"/>
+          <line x1="54" y1="165" x2="96" y2="158"/>
+          <line x1="54" y1="186" x2="96" y2="179"/>
+          <line x1="54" y1="207" x2="96" y2="200"/>
+          <line x1="54" y1="228" x2="96" y2="221"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+          <div class="diagram-note">Even threads let parts fit together.</div>
+        </figure>
+      </div>
+    
+    <footer class="slide-footer">
+      <span class="footer-brand">The Story of Screws</span>
+      <div class="ticks" aria-label="Slide navigation"></div>
+      <div class="footer-right">
+        <span class="page-count"><b>05</b> / 12</span>
+        <span class="lang-switch">
+          <a href="screws-en.html" class="is-current" aria-current="page">EN</a>
+          <span class="slash">/</span>
+          <a href="screws-zh.html" class="other-lang" data-base="screws-zh.html" target="_blank" rel="noopener">中文</a>
+        </span>
+      </div>
+    </footer>
+  </section>
+
+  <section class="slide" data-page="6" aria-label="Development: materials and heads" aria-roledescription="slide">
+    
+      
+    <header class="slide-head">
+      <p class="eyebrow"><span class="part">02</span><span class="sep"></span>DEVELOPMENT · PART 2</p>
+      <h1>How did screws become what they are today?</h1>
+      <div class="rule"></div>
+    </header>
+      <div class="slide-body split">
+        <ul class="points">
+      <li>Materials changed: wood, iron, steel, stainless steel.</li>
+      <li>A zinc coat or black finish helps stop rust.</li>
+      <li>Heads changed: slot, cross, hex, star.</li>
+      <li>Today, screws are designed for each job.</li>
+    </ul>
+        <figure class="diagram">
+          <div class="diagram-top"><span><b>FIG. 06</b> · common heads</span><span>DRIVE TYPES</span></div>
+          
+      <div class="drive-grid">
+        <div class="drive">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="42" fill="#FCF9F3" stroke="#24221E" stroke-width="4"/>
+        <circle cx="50" cy="50" r="34" fill="none" stroke="#D8D0C2" stroke-width="1"/>
+        <line x1="23" y1="50" x2="77" y2="50" stroke="#A8462A" stroke-width="12" stroke-linecap="round"/>
+      </svg><span class="drive-name">Slot</span><span class="drive-en">FLAT</span></div>
+        <div class="drive">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="42" fill="#FCF9F3" stroke="#24221E" stroke-width="4"/>
+        <circle cx="50" cy="50" r="34" fill="none" stroke="#D8D0C2" stroke-width="1"/>
+        <g stroke="#A8462A" stroke-width="11" stroke-linecap="round"><line x1="30" y1="50" x2="70" y2="50"/><line x1="50" y1="30" x2="50" y2="70"/></g>
+      </svg><span class="drive-name">Cross</span><span class="drive-en">PHILLIPS</span></div>
+        <div class="drive">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="42" fill="#FCF9F3" stroke="#24221E" stroke-width="4"/>
+        <circle cx="50" cy="50" r="34" fill="none" stroke="#D8D0C2" stroke-width="1"/>
+        <polygon points="31,32 44,24 60,30 67,45 59,60 42,65 29,54 27,42" fill="none" stroke="#A8462A" stroke-width="9" stroke-linejoin="round"/>
+      </svg><span class="drive-name">Hex</span><span class="drive-en">SOCKET</span></div>
+        <div class="drive">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="42" fill="#FCF9F3" stroke="#24221E" stroke-width="4"/>
+        <circle cx="50" cy="50" r="34" fill="none" stroke="#D8D0C2" stroke-width="1"/>
+        <path d="M50 20L57 37L75 35L65 50L77 64L58 63L50 80L42 63L23 64L35 50L25 35L43 37Z" fill="none" stroke="#A8462A" stroke-width="7.5" stroke-linejoin="round"/>
+      </svg><span class="drive-name">Star</span><span class="drive-en">TORX</span></div>
+      </div>
+          <div class="diagram-note">One screw can have many head shapes.</div>
+        </figure>
+      </div>
+    
+    <footer class="slide-footer">
+      <span class="footer-brand">The Story of Screws</span>
+      <div class="ticks" aria-label="Slide navigation"></div>
+      <div class="footer-right">
+        <span class="page-count"><b>06</b> / 12</span>
+        <span class="lang-switch">
+          <a href="screws-en.html" class="is-current" aria-current="page">EN</a>
+          <span class="slash">/</span>
+          <a href="screws-zh.html" class="other-lang" data-base="screws-zh.html" target="_blank" rel="noopener">中文</a>
+        </span>
+      </div>
+    </footer>
+  </section>
+
+  <section class="slide" data-page="7" aria-label="Uses: engineering" aria-roledescription="slide">
+    
+      
+    <header class="slide-head">
+      <p class="eyebrow"><span class="part">03</span><span class="sep"></span>USES</p>
+      <h1>Where do engineers use screws?</h1>
+      <div class="rule"></div>
+    </header>
+      <div class="slide-body case-wrap">
+        <div class="cards">
+          
+        <article class="card" data-no="01">
+          <div class="card-top"><span class="card-no">CASE 01</span><span class="card-icon">
+    <svg viewBox="0 0 100 82" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M7 70H93"/>
+      <path d="M16 70V22M84 70V22"/>
+      <path d="M16 24C35 53 65 53 84 24"/>
+      <path d="M28 24V44M40 27V51M52 28V53M64 27V51M76 24V44"/>
+      <path d="M10 70V76M90 70V76"/>
+    </svg></span></div>
+          <h2>Bridges</h2>
+          <p>Strong bolts join steel beams.<span class="card-extra">The bridge must carry traffic and wind.</span></p>
+          <span class="card-note">ENGINEERING</span>
+        </article>
+          
+        <article class="card" data-no="02">
+          <div class="card-top"><span class="card-no">CASE 02</span><span class="card-icon">
+    <svg viewBox="0 0 100 82" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M8 61L13 48C14 44 17 42 21 42H58L71 53H85C90 53 93 56 93 61V69H8Z"/>
+      <path d="M23 42L34 54H60L51 42"/>
+      <circle cx="28" cy="70" r="9"/>
+      <circle cx="76" cy="70" r="9"/>
+      <path d="M37 70H67M8 61H15M86 61H93"/>
+    </svg></span></div>
+          <h2>Cars</h2>
+          <p>Screws hold the engine, frame, and seats.<span class="card-extra">A car uses many hundreds of them.</span></p>
+          <span class="card-note">ENGINEERING</span>
+        </article>
+          
+        <article class="card" data-no="03">
+          <div class="card-top"><span class="card-no">CASE 03</span><span class="card-icon">
+    <svg viewBox="0 0 100 82" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M50 7C54 7 57 13 57 21V37L91 56V64L57 53V72L68 81V85H32V81L43 72V53L9 64V56L43 37V21C43 13 46 7 50 7Z"/>
+      <path d="M42 29H58M42 38H58"/>
+    </svg></span></div>
+          <h2>Planes</h2>
+          <p>Planes use light, strong bolts.<span class="card-extra">Every one is checked before flight.</span></p>
+          <span class="card-note">ENGINEERING</span>
+        </article>
+        </div>
+        <p class="case-takeaway"><strong>Common idea:</strong> these things carry a lot of force, so the joint must be strong.</p>
+      </div>
+    
+    <footer class="slide-footer">
+      <span class="footer-brand">The Story of Screws</span>
+      <div class="ticks" aria-label="Slide navigation"></div>
+      <div class="footer-right">
+        <span class="page-count"><b>07</b> / 12</span>
+        <span class="lang-switch">
+          <a href="screws-en.html" class="is-current" aria-current="page">EN</a>
+          <span class="slash">/</span>
+          <a href="screws-zh.html" class="other-lang" data-base="screws-zh.html" target="_blank" rel="noopener">中文</a>
+        </span>
+      </div>
+    </footer>
+  </section>
+
+  <section class="slide" data-page="8" aria-label="Uses: everyday life" aria-roledescription="slide">
+    
+      
+    <header class="slide-head">
+      <p class="eyebrow"><span class="part">03</span><span class="sep"></span>USES</p>
+      <h1>Where do we use screws every day?</h1>
+      <div class="rule"></div>
+    </header>
+      <div class="slide-body case-wrap">
+        <div class="cards">
+          
+        <article class="card" data-no="01">
+          <div class="card-top"><span class="card-no">CASE 01</span><span class="card-icon">
+    <svg viewBox="0 0 100 82" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="25" cy="45" r="15"/>
+      <circle cx="75" cy="45" r="15"/>
+      <path d="M40 45H60M10 42L2 35M90 42L98 35"/>
+      <path d="M18 33c4-5 10-5 14 0M68 33c4-5 10-5 14 0"/>
+    </svg></span></div>
+          <h2>Glasses</h2>
+          <p>Tiny screws join the arms to the frame.<span class="card-extra">You can tighten a loose screw yourself.</span></p>
+          <span class="card-note">EVERYDAY</span>
+        </article>
+          
+        <article class="card" data-no="02">
+          <div class="card-top"><span class="card-no">CASE 02</span><span class="card-icon">
+    <svg viewBox="0 0 100 82" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M29 12V49H72"/>
+      <path d="M36 18H66V49"/>
+      <path d="M29 49L22 74M72 49L80 74"/>
+      <path d="M36 57H65M27 66H73"/>
+    </svg></span></div>
+          <h2>Furniture</h2>
+          <p>Screws hold tables, chairs, and shelves together.<span class="card-extra">You can take them apart when you move.</span></p>
+          <span class="card-note">EVERYDAY</span>
+        </article>
+          
+        <article class="card" data-no="03">
+          <div class="card-top"><span class="card-no">CASE 03</span><span class="card-icon">
+    <svg viewBox="0 0 100 82" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="21" cy="57" r="15"/>
+      <circle cx="77" cy="57" r="15"/>
+      <path d="M21 57L38 31H59L77 57M38 31L49 57H21M49 57L59 31"/>
+      <path d="M55 24H65M33 25H43M59 31L68 24"/>
+    </svg></span></div>
+          <h2>Bicycles</h2>
+          <p>Screws fix the handlebars, brakes, and frame parts.<span class="card-extra">Check them before you ride.</span></p>
+          <span class="card-note">EVERYDAY</span>
+        </article>
+        </div>
+        <p class="case-takeaway"><strong>Common idea:</strong> if one screw comes loose, the whole thing may not work well.</p>
+      </div>
+    
+    <footer class="slide-footer">
+      <span class="footer-brand">The Story of Screws</span>
+      <div class="ticks" aria-label="Slide navigation"></div>
+      <div class="footer-right">
+        <span class="page-count"><b>08</b> / 12</span>
+        <span class="lang-switch">
+          <a href="screws-en.html" class="is-current" aria-current="page">EN</a>
+          <span class="slash">/</span>
+          <a href="screws-zh.html" class="other-lang" data-base="screws-zh.html" target="_blank" rel="noopener">中文</a>
+        </span>
+      </div>
+    </footer>
+  </section>
+
+  <section class="slide" data-page="9" aria-label="Types: self-tapping screws" aria-roledescription="slide">
+    
+      
+    <header class="slide-head">
+      <p class="eyebrow"><span class="part">04</span><span class="sep"></span>TYPES · 1 / 3</p>
+      <h1>Self-tapping screws</h1>
+      <div class="rule"></div>
+    </header>
+      <div class="slide-body split">
+        <ul class="points">
+      <li>It has a sharp point and close threads.</li>
+      <li>It cuts its own thread in metal or plastic.</li>
+      <li>Hard materials may need a small pilot hole.</li>
+      <li>Common in computer cases, toys, and appliance covers.</li>
+    </ul>
+        
+    <figure class="diagram">
+      <div class="diagram-top"><span><b>FIG. 9</b> · Self-tapping</span><span>TYPE 1 / 3</span></div>
+      
+      <svg viewBox="0 0 440 355" role="img" aria-label="Technical drawing of a self-tapping screw">
+        
+          <rect x="154" y="25" width="132" height="34" rx="16" fill="#A8462A"/>
+          <line x1="177" y1="42" x2="263" y2="42" stroke="#F7F3EA" stroke-width="5" stroke-linecap="round" opacity=".8"/>
+          <rect x="196" y="59" width="48" height="15" fill="#CFC8BA" stroke="#24221E" stroke-width="2"/>
+          <path d="M190 74H250V279L220 330L190 279Z" fill="#F1ECE1" stroke="#24221E" stroke-width="2.4" stroke-linejoin="round"/>
+          <clipPath id="clip-self"><path d="M190 74H250V279L220 330L190 279Z"/></clipPath>
+          <g clip-path="url(#clip-self)" stroke="#24221E" stroke-width="4.2" stroke-linecap="round" opacity=".9">
+            <line x1="184" y1="102" x2="256" y2="91"/>
+          <line x1="184" y1="118" x2="256" y2="107"/>
+          <line x1="184" y1="134" x2="256" y2="123"/>
+          <line x1="184" y1="150" x2="256" y2="139"/>
+          <line x1="184" y1="166" x2="256" y2="155"/>
+          <line x1="184" y1="182" x2="256" y2="171"/>
+          <line x1="184" y1="198" x2="256" y2="187"/>
+          <line x1="184" y1="214" x2="256" y2="203"/>
+          <line x1="184" y1="230" x2="256" y2="219"/>
+          <line x1="184" y1="246" x2="256" y2="235"/>
+          <line x1="184" y1="262" x2="256" y2="251"/>
+          <line x1="184" y1="278" x2="256" y2="267"/>
+          <line x1="184" y1="294" x2="256" y2="283"/>
+          </g>
+          <line x1="206" y1="84" x2="206" y2="292" stroke="#FFFFFF" stroke-width="3.5" opacity=".22"/>
+        
+          <g stroke="#8B9292" stroke-width="1.1" opacity=".5">
+            <line x1="202" y1="80" x2="202" y2="105"/>
+            <line x1="238" y1="80" x2="238" y2="105"/>
+          </g>
+        <path class="svg-leader" d="M116 49L154 45"/><circle class="svg-dot" cx="154" cy="45" r="2.7"/>
+        <path class="svg-leader" d="M289 167L260 161"/><circle class="svg-dot" cx="260" cy="161" r="2.7"/>
+        <path class="svg-leader" d="M150 316L196 306"/><circle class="svg-dot" cx="196" cy="306" r="2.7"/>
+        <text class="svg-label" x="48" y="54">pan head</text>
+        <text class="svg-label" x="294" y="172">close threads</text>
+        <text class="svg-label" x="58" y="321">sharp point</text>
+      </svg>
+      <div class="diagram-note">Sharp point + close threads: it cuts its own thread.</div>
+    </figure>
+      </div>
+    
+    <footer class="slide-footer">
+      <span class="footer-brand">The Story of Screws</span>
+      <div class="ticks" aria-label="Slide navigation"></div>
+      <div class="footer-right">
+        <span class="page-count"><b>09</b> / 12</span>
+        <span class="lang-switch">
+          <a href="screws-en.html" class="is-current" aria-current="page">EN</a>
+          <span class="slash">/</span>
+          <a href="screws-zh.html" class="other-lang" data-base="screws-zh.html" target="_blank" rel="noopener">中文</a>
+        </span>
+      </div>
+    </footer>
+  </section>
+
+  <section class="slide" data-page="10" aria-label="Types: wood screws" aria-roledescription="slide">
+    
+      
+    <header class="slide-head">
+      <p class="eyebrow"><span class="part">04</span><span class="sep"></span>TYPES · 2 / 3</p>
+      <h1>Wood screws</h1>
+      <div class="rule"></div>
+    </header>
+      <div class="slide-body split">
+        <ul class="points">
+      <li>Coarse threads grip wood well.</li>
+      <li>The sharp point starts easily.</li>
+      <li>A pilot hole helps stop wood from splitting.</li>
+      <li>Common in furniture, wooden frames, and floors.</li>
+    </ul>
+        
+    <figure class="diagram">
+      <div class="diagram-top"><span><b>FIG. 10</b> · Wood screw</span><span>TYPE 2 / 3</span></div>
+      
+      <svg viewBox="0 0 440 355" role="img" aria-label="Technical drawing of a wood screw screw">
+        
+          <path d="M148 27H292L258 67H182Z" fill="#A8462A"/>
+          <line x1="169" y1="38" x2="271" y2="38" stroke="#F7F3EA" stroke-width="5" stroke-linecap="round" opacity=".8"/>
+          <path d="M196 67H244V260L235 303L220 343L205 303L196 260Z" fill="#F1ECE1" stroke="#24221E" stroke-width="2.4" stroke-linejoin="round"/>
+          <clipPath id="clip-wood"><path d="M196 67H244V260L235 303L220 343L205 303L196 260Z"/></clipPath>
+          <g clip-path="url(#clip-wood)" stroke="#24221E" stroke-width="5.3" stroke-linecap="round" opacity=".9">
+            <line x1="190" y1="165" x2="250" y2="153"/>
+          <line x1="190" y1="188" x2="250" y2="176"/>
+          <line x1="190" y1="211" x2="250" y2="199"/>
+          <line x1="190" y1="234" x2="250" y2="222"/>
+          <line x1="190" y1="257" x2="250" y2="245"/>
+          <line x1="190" y1="280" x2="250" y2="268"/>
+          <line x1="190" y1="303" x2="250" y2="291"/>
+          </g>
+          <line x1="206" y1="84" x2="206" y2="292" stroke="#FFFFFF" stroke-width="3.5" opacity=".22"/>
+        
+          <g stroke="#8B9292" stroke-width="1.2" opacity=".55">
+            <line x1="202" y1="80" x2="202" y2="145"/>
+            <line x1="238" y1="80" x2="238" y2="145"/>
+          </g>
+        <path class="svg-leader" d="M126 48L164 52"/><circle class="svg-dot" cx="164" cy="52" r="2.7"/>
+        <path class="svg-leader" d="M287 200L252 201"/><circle class="svg-dot" cx="252" cy="201" r="2.7"/>
+        <path class="svg-leader" d="M150 325L198 316"/><circle class="svg-dot" cx="198" cy="316" r="2.7"/>
+        <text class="svg-label" x="34" y="53">countersunk</text>
+        <text class="svg-label" x="292" y="205">coarse thread</text>
+        <text class="svg-label" x="58" y="330">sharp point</text>
+      </svg>
+      <div class="diagram-note">Coarse threads + sharp point: a good fit for wood.</div>
+    </figure>
+      </div>
+    
+    <footer class="slide-footer">
+      <span class="footer-brand">The Story of Screws</span>
+      <div class="ticks" aria-label="Slide navigation"></div>
+      <div class="footer-right">
+        <span class="page-count"><b>10</b> / 12</span>
+        <span class="lang-switch">
+          <a href="screws-en.html" class="is-current" aria-current="page">EN</a>
+          <span class="slash">/</span>
+          <a href="screws-zh.html" class="other-lang" data-base="screws-zh.html" target="_blank" rel="noopener">中文</a>
+        </span>
+      </div>
+    </footer>
+  </section>
+
+  <section class="slide" data-page="11" aria-label="Types: self-drilling screws" aria-roledescription="slide">
+    
+      
+    <header class="slide-head">
+      <p class="eyebrow"><span class="part">04</span><span class="sep"></span>TYPES · 3 / 3</p>
+      <h1>Self-drilling screws</h1>
+      <div class="rule"></div>
+    </header>
+      <div class="slide-body split">
+        <ul class="points">
+      <li>The tip works like a small drill.</li>
+      <li>It drills a hole and cuts a thread in one step.</li>
+      <li>Used on thin steel, metal frames, and roofs.</li>
+      <li>Use a drill or a power screwdriver.</li>
+    </ul>
+        
+    <figure class="diagram">
+      <div class="diagram-top"><span><b>FIG. 11</b> · Self-drilling</span><span>TYPE 3 / 3</span></div>
+      
+      <svg viewBox="0 0 440 355" role="img" aria-label="Technical drawing of a self-drilling screw">
+        
+          <path d="M158 25H282L290 55H150Z" fill="#A8462A"/>
+          <path d="M158 25L176 55M282 25L264 55" stroke="#7D301D" stroke-width="1.6" opacity=".65"/>
+          <rect x="156" y="55" width="128" height="9" fill="#24221E" opacity=".82"/>
+          <rect x="193" y="64" width="54" height="13" fill="#CFC8BA" stroke="#24221E" stroke-width="2"/>
+          <path d="M190 77H250V278H190Z" fill="#F1ECE1" stroke="#24221E" stroke-width="2.4" stroke-linejoin="round"/>
+          <clipPath id="clip-drill"><path d="M190 77H250V278H190Z"/></clipPath>
+          <path d="M200 278H240L232 298L220 346L208 298Z" fill="#DCD6C9" stroke="#24221E" stroke-width="2.2" stroke-linejoin="round"/>
+          <line x1="190" y1="278" x2="250" y2="278" stroke="#24221E" stroke-width="2.2"/>
+          <g clip-path="url(#clip-drill)" stroke="#24221E" stroke-width="4.3" stroke-linecap="round" opacity=".9">
+            <line x1="184" y1="102" x2="256" y2="91"/>
+          <line x1="184" y1="117" x2="256" y2="106"/>
+          <line x1="184" y1="132" x2="256" y2="121"/>
+          <line x1="184" y1="147" x2="256" y2="136"/>
+          <line x1="184" y1="162" x2="256" y2="151"/>
+          <line x1="184" y1="177" x2="256" y2="166"/>
+          <line x1="184" y1="192" x2="256" y2="181"/>
+          <line x1="184" y1="207" x2="256" y2="196"/>
+          <line x1="184" y1="222" x2="256" y2="211"/>
+          <line x1="184" y1="237" x2="256" y2="226"/>
+          <line x1="184" y1="252" x2="256" y2="241"/>
+          <line x1="184" y1="267" x2="256" y2="256"/>
+          <line x1="184" y1="282" x2="256" y2="271"/>
+          </g>
+          <line x1="206" y1="84" x2="206" y2="292" stroke="#FFFFFF" stroke-width="3.5" opacity=".22"/>
+        
+          <g stroke="#A8462A" stroke-width="2.2" fill="none" stroke-linecap="round">
+            <path d="M206 284c12 16-2 34 14 58"/>
+            <path d="M234 284c-12 16 2 34-14 58"/>
+          </g>
+        <path class="svg-leader" d="M115 48L164 52"/><circle class="svg-dot" cx="164" cy="52" r="2.7"/>
+        <path class="svg-leader" d="M329 196L260 192"/><circle class="svg-dot" cx="260" cy="192" r="2.7"/>
+        <path class="svg-leader" d="M140 327L202 320"/><circle class="svg-dot" cx="202" cy="320" r="2.7"/>
+        <text class="svg-label" x="47" y="53">hex head</text>
+        <text class="svg-label" x="334" y="201">thread</text>
+        <text class="svg-label" x="64" y="332">drill tip</text>
+      </svg>
+      <div class="diagram-note">It drills and threads in one step.</div>
+    </figure>
+      </div>
+    
+    <footer class="slide-footer">
+      <span class="footer-brand">The Story of Screws</span>
+      <div class="ticks" aria-label="Slide navigation"></div>
+      <div class="footer-right">
+        <span class="page-count"><b>11</b> / 12</span>
+        <span class="lang-switch">
+          <a href="screws-en.html" class="is-current" aria-current="page">EN</a>
+          <span class="slash">/</span>
+          <a href="screws-zh.html" class="other-lang" data-base="screws-zh.html" target="_blank" rel="noopener">中文</a>
+        </span>
+      </div>
+    </footer>
+  </section>
+
+  <section class="slide closing" data-page="12" aria-label="Summary" aria-roledescription="slide">
+    
+      
+    <header class="slide-head">
+      <p class="eyebrow"><span class="part">05</span><span class="sep"></span>SUMMARY</p>
+      <h1>Three things to remember</h1>
+      <div class="rule"></div>
+    </header>
+      <div class="slide-body closing-body">
+        <ol class="summary-list">
+          <li>Screws were not invented in one day.</li>
+          <li>They are small, but they hold many things together.</li>
+          <li>Different jobs need different screws.</li>
+        </ol>
+        <div class="motto">
+          <div class="motto-copy">
+            <p class="tagline">Small screws.<br>Big connections.</p>
+            <p class="tagline-en">A SMALL PART. A BIG JOB.</p>
+          </div>
+          <div class="thanks">THANK YOU<br>谢谢观看</div>
+          <div class="motto-screw" aria-hidden="true">
+            <svg viewBox="0 0 76 150" fill="none" stroke="#FFF8EE" stroke-width="3">
+              <rect x="14" y="3" width="48" height="16" rx="6"/>
+              <path d="M26 19H50V122L38 146L26 122Z"/>
+              <path d="M24 35H52M24 53H52M24 71H52M24 89H52M24 107H52"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    
+    <footer class="slide-footer">
+      <span class="footer-brand">The Story of Screws</span>
+      <div class="ticks" aria-label="Slide navigation"></div>
+      <div class="footer-right">
+        <span class="page-count"><b>12</b> / 12</span>
+        <span class="lang-switch">
+          <a href="screws-en.html" class="is-current" aria-current="page">EN</a>
+          <span class="slash">/</span>
+          <a href="screws-zh.html" class="other-lang" data-base="screws-zh.html" target="_blank" rel="noopener">中文</a>
+        </span>
+      </div>
+    </footer>
+  </section>
+    </div>
+  </main>
+  <p id="live" class="sr-only" aria-live="polite"></p>
+  <script>
+(function(){
+  var stage = document.getElementById('stage');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length;
+  var current = 0;
+  var progress = document.getElementById('progress');
+  var tickBoxes = Array.prototype.slice.call(document.querySelectorAll('.ticks'));
+  var otherLangs = Array.prototype.slice.call(document.querySelectorAll('.other-lang'));
+  var live = document.getElementById('live');
+  var prev = document.getElementById('prev');
+  var next = document.getElementById('next');
+  var labels = {
+    page: document.documentElement.lang.indexOf('zh') === 0 ? '第 ' : 'Slide ',
+    of: document.documentElement.lang.indexOf('zh') === 0 ? ' 页，共 ' : ' of ',
+    pages: document.documentElement.lang.indexOf('zh') === 0 ? ' 页' : '',
+    prev: document.documentElement.lang.indexOf('zh') === 0 ? '上一页' : 'Previous slide',
+    next: document.documentElement.lang.indexOf('zh') === 0 ? '下一页' : 'Next slide'
+  };
+
+  var ticks = [];
+  tickBoxes.forEach(function(box){
+    slides.forEach(function(slide, i){
+      var tick = document.createElement('button');
+      tick.type = 'button';
+      tick.className = 'tick';
+      tick.setAttribute('data-page', i);
+      tick.setAttribute('aria-label', labels.page + (i + 1) + labels.of + total + labels.pages);
+      tick.addEventListener('click', function(){ go(i); });
+      box.appendChild(tick);
+      ticks.push(tick);
+    });
+  });
+
+  function go(n, updateHash){
+    current = Math.max(0, Math.min(total - 1, n));
+    slides.forEach(function(slide, i){
+      var active = i === current;
+      slide.classList.toggle('is-active', active);
+      slide.setAttribute('aria-hidden', active ? 'false' : 'true');
+      if ('inert' in slide) { slide.inert = !active; }
+    });
+    ticks.forEach(function(tick){
+      var on = parseInt(tick.getAttribute('data-page'), 10) === current;
+      tick.classList.toggle('is-on', on);
+      tick.setAttribute('aria-current', on ? 'step' : 'false');
+    });
+    progress.style.width = ((current + 1) / total * 100) + '%';
+    prev.disabled = current === 0;
+    next.disabled = current === total - 1;
+    prev.setAttribute('aria-label', labels.prev);
+    next.setAttribute('aria-label', labels.next);
+    live.textContent = labels.page + (current + 1) + labels.of + total + labels.pages;
+    otherLangs.forEach(function(link){
+      link.href = link.getAttribute('data-base') + '#' + (current + 1);
+    });
+    if (updateHash !== false) {
+      try { history.replaceState(null, '', '#' + (current + 1)); }
+      catch (err) { /* file:// in older browsers */ }
+    }
+  }
+
+  function nextSlide(){ go(current + 1); }
+  function prevSlide(){ go(current - 1); }
+
+  function toggleFullscreen(){
+    try {
+      if (!document.fullscreenElement) {
+        var request = document.documentElement.requestFullscreen;
+        if (request) { request.call(document.documentElement); }
+      } else if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    } catch (err) {}
+  }
+
+  document.addEventListener('keydown', function(e){
+    if (e.ctrlKey || e.metaKey || e.altKey) { return; }
+    var key = e.key;
+    var onControl = e.target && e.target.closest && e.target.closest('button,a');
+    if (onControl && (key === ' ' || key === 'Enter')) { return; }
+    if (key === 'ArrowRight' || key === 'ArrowDown' || key === ' ' || key === 'PageDown' || key === 'Enter') {
+      e.preventDefault(); nextSlide();
+    } else if (key === 'ArrowLeft' || key === 'ArrowUp' || key === 'PageUp' || key === 'Backspace') {
+      e.preventDefault(); prevSlide();
+    } else if (key === 'Home') {
+      e.preventDefault(); go(0);
+    } else if (key === 'End') {
+      e.preventDefault(); go(total - 1);
+    } else if (key === 'f' || key === 'F') {
+      e.preventDefault(); toggleFullscreen();
+    }
+  });
+
+  prev.addEventListener('click', prevSlide);
+  next.addEventListener('click', nextSlide);
+
+  document.querySelectorAll('[data-goto]').forEach(function(button){
+    button.addEventListener('click', function(){
+      var target = parseInt(button.getAttribute('data-goto'), 10);
+      if (!isNaN(target)) { go(target - 1); }
+    });
+  });
+
+  window.addEventListener('hashchange', function(){
+    var n = parseInt((location.hash || '').replace('#', ''), 10);
+    if (!isNaN(n) && n >= 1 && n <= total && n - 1 !== current) { go(n - 1, false); }
+  });
+
+  function fit(){
+    var margin = Math.max(12, Math.min(window.innerWidth, window.innerHeight) * 0.018);
+    var scale = Math.min(
+      (window.innerWidth - margin * 2) / 1280,
+      (window.innerHeight - margin * 2) / 720
+    );
+    stage.style.transform = 'scale(' + Math.max(0.2, scale) + ')';
+  }
+
+  window.addEventListener('resize', fit);
+  window.addEventListener('beforeprint', function(){ stage.style.transform = 'none'; });
+  window.addEventListener('afterprint', fit);
+
+  fit();
+  var start = parseInt((location.hash || '').replace('#', ''), 10);
+  go(isNaN(start) ? 0 : start - 1, false);
+})();
+</script>
+</body>
+</html>
